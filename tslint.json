@@ -1,19 +1,18 @@
 {
-  "defaultSeverity": "warning",
-  "extends": [
-    "tslint:recommended"
-  ],
-  "linterOptions": {
-    "exclude": [
-      "node_modules/**"
-    ]
-  },
   "rules": {
-    "quotemark": [true, "single"],
-    "indent": [true, "spaces", 2],
-    "interface-name": false,
-    "ordered-imports": false,
-    "object-literal-sort-keys": false,
-    "no-consecutive-blank-lines": false
+    "prettier": [true, ".prettierrc"],
+    "comment-format": [true, "check-space"],
+    "curly": true,
+    "file-name-casing": [true, "kebab-case"],
+    "import-spacing": true,
+    "interface-name": [true, "always-prefix"],
+    "member-access": true,
+    "newline-before-return": true,
+    "no-consecutive-blank-lines": true,
+    "no-empty": true,
+    "no-trailing-whitespace": true,
+    "no-var-keyword": true,
+    "prefer-const": true,
+    "triple-equals": true
   }
 }
