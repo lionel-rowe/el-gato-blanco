@@ -1,25 +1,33 @@
 <template>
-  <div id="app">
+  <div id="app" v-on:modal:show="() => console.log(2)">
     <TopNav />
-    <router-view/>
+    <router-view />
+    <Modal />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import TopNav from '@/components/top-nav.vue';
+import TopNav from "@/components/top-nav.vue";
+import Modal from "@/modals/modal.vue";
 
-@Component({
+export default {
   components: {
     TopNav,
+    Modal
   },
-})
-export default class App extends Vue {}
+  created() {
+    if (/localhost|127\.0\.0\.1/.test(window.location.host)) {
+      // is dev
+      console.log('app-level vue instance: `window.vm`')
+      window.vm = this;
+    }
+  }
+};
 </script>
 
 <style lang="scss">
 @import "bulma/bulma.sass";
-@import url('https://fonts.googleapis.com/css?family=Ubuntu&display=swap');
+@import url("https://fonts.googleapis.com/css?family=Ubuntu&display=swap");
 
 html {
   overflow-y: auto;
@@ -30,11 +38,10 @@ p {
 }
 
 #app {
-  font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+  font-family: "Ubuntu", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
 
 .is-sticky {
   @media screen and (min-width: $desktop) {
@@ -103,7 +110,12 @@ p {
   flex-wrap: wrap;
   justify-content: space-between;
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     flex: 1 0 auto;
   }
 }
@@ -146,7 +158,12 @@ p {
   flex-wrap: wrap;
   justify-content: space-between;
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     flex: 1 0 auto;
   }
 }

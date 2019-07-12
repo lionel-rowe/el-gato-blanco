@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import VModal from "vue-js-modal";
 
 import App from "./app.vue";
 import router from "./router";
@@ -18,6 +19,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 Vue.use(Vuex);
 Vue.use(ServicesPlugin);
+
+// Vue.use(VModal, {  componentName: "Modal" /* dynamic: true, dynamicDefaults: { clickToClose: false } */ });
 
 library.add(faPlus, faMinus, faTrashAlt, faCheck);
 

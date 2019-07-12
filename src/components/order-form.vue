@@ -61,14 +61,14 @@
         @click="confirmPayment"
         data-test="confirm-payment"
       >Confirm Payment</button>
-      <button class="button is-danger" @click="cancelOrder" data-test="cancel-order">
-        Cancel Order
-      </button>
+      <button class="button is-danger" @click="cancelOrder" data-test="cancel-order">Cancel Order</button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import Modal from "@/modals/modal.vue";
+
 import store from "@/store/index";
 
 export default {
@@ -90,12 +90,13 @@ export default {
     removeAllOfProduct: (product: IProduct) => {
       store.commit("currentOrder/removeAllOfProduct", product);
     },
-    confirmPayment: () => {
+    confirmPayment() {
+      this.$emit('show-modal'/* , {1:2} */)
       // TODO
     },
     cancelOrder: () => {
       // TODO
-    },
+    }
   }
 };
 </script>

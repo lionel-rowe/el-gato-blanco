@@ -7,7 +7,7 @@
 
       <div v-else>
         <div class="columns is-desktop">
-          <div class="column">
+          <div class="column is-8-desktop is-12-mobile">
             <ProductSortView :products="products" :categories="categories" />
           </div>
 
@@ -31,7 +31,7 @@ import OrderForm from "@/components/order-form.vue";
 export default {
   components: {
     ProductSortView,
-    OrderForm
+    OrderForm,
   },
   data: () => ({
     loading: false,

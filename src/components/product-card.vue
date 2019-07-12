@@ -55,6 +55,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+* {
+  word-wrap: break-word;
+}
 .product-card-inner {
   height: 100%;
   min-height: 200px;
