@@ -27,11 +27,24 @@
 import store from "@/store/index";
 import ProductSortView from "@/components/product-sort-view.vue";
 import OrderForm from "@/components/order-form.vue";
+import { fetchJSON } from '@/utils/fetch-json';
+
+const getAllProducts = async (): Promise<FetchResponse<IProduct[]>> => {
+  return await fetchJSON(`/api/products`);
+};
+
+const getAllCategories = async (): Promise<FetchResponse<ICategory[]>> => {
+  return await fetchJSON(`/api/categories`);
+};
+
+const getOrderById = async (id: string): Promise<FetchResponse<IOrder>> => {
+  return await fetchJSON(`/api/orders/${id}`);
+};
 
 export default {
   components: {
     ProductSortView,
-    OrderForm,
+    OrderForm
   },
   data: () => ({
     loading: false,
@@ -41,7 +54,7 @@ export default {
       searchText: "",
       categoryNames: []
     },
-    error: "",
+    error: ""
   }),
 
   async created() {
@@ -54,9 +67,7 @@ export default {
   computed: {
     order: () => store.getters["currentOrder/order"],
 
-    // a computed getter
     filteredAndSortedProducts: function(): IProduct[] {
-      // `this` points to the vm instance
       return this.products.filter(product => {
         // const trimmedSearchText = this.filters.searchText.trim();
 
@@ -82,9 +93,9 @@ export default {
 
       try {
         const [order, products, categories] = await Promise.all([
-          this.$orderService.getById(id),
-          this.$productService.getAll(),
-          this.$categoryService.getAll()
+          getOrderById(id),
+          getAllProducts(),
+          getAllCategories()
         ]);
 
         this.loading = false;

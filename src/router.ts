@@ -4,7 +4,7 @@ import Home from "./views/home.vue";
 
 Vue.use(Router);
 
-const APP_TITLE = "🦄🦄🦄 El Unicornio Blanco";
+const APP_TITLE = "El Gato Blanco";
 const DELIMITER = " | ";
 
 const router = new Router({

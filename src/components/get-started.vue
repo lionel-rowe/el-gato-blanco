@@ -24,6 +24,17 @@
 </template>
 
 <script lang="ts">
+import { fetchJSON } from '@/utils/fetch-json';
+
+const createOrder = async (): Promise<FetchResponse<IOrder>> => {
+  const options = {
+    method: "POST",
+    body: { lineItems: [] }
+  };
+
+  return await fetchJSON("/api/orders", options);
+};
+
 export default {
   props: {
     title: String,
@@ -51,7 +62,7 @@ export default {
       this.loading = true;
 
       try {
-        const { res, data } = await this.$orderService.create();
+        const { res, data } = await createOrder();
 
         this.loading = false;
 

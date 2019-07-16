@@ -1,19 +1,25 @@
 <template>
-  <dialog ref="modal" v-on:show-modal="displayModal">
+  <dialog ref="modal">
     <div class="modal-box">
-      <div class="modal-content">
-        <h1 v-if="title">{{ title }}</h1>
-        <!-- <component :is="component"> Something else</component> -->
-        <!-- <div v-if="Object.keys(buttons).length" class="controls">
-          <button @click="confirm" v-if="buttons.confirm" class="button is-primary">{{buttons.confirm}}</button>
+      <div class="modal-inner">
+        <h1 class="title is-3" v-if="title">{{ title }}</h1>
+        <component :is="component" v-bind="passThroughProps || {}">
+          <template v-if="content">{{ content }}</template>
+        </component>
+        <div v-if="Object.keys(buttons).length" class="controls">
+          <button
+            @click="confirm"
+            v-if="buttons.confirm"
+            class="button is-primary"
+          >{{ buttons.confirm }}</button>
           <button @click="cancel" v-if="buttons.cancel" class="button is-danger">{{buttons.cancel}}</button>
-        </div> -->
+        </div>
       </div>
     </div>
 
     <div @click="cancel" class="backdrop">
       <button @click="cancel" class="close" type="reset" aria-label="Close">
-        <span class="close-inner" aria-hidden>&times;</span>
+        <span class="close-inner" aria-hidden="true">&times;</span>
       </button>
     </div>
   </dialog>
@@ -21,7 +27,7 @@
 
 <script lang="ts">
 import { Vue } from "vue/types/vue";
-// import OrderForm from "@/components/order-form.vue";
+import { EventBus } from "@/events/event-bus";
 
 let { scrollX, scrollY } = window;
 
@@ -51,40 +57,47 @@ const closeModal = (modal: HTMLDialogElement) => {
 
 export default {
   data: () => ({
-    // component: OrderForm
+    buttons: {},
+    title: "",
+    component: "p",
+    model: null,
+    content: "",
+    passThroughProps: {}
   }),
 
-  props: {
-    showDialog: Boolean,
-    modalData: Object,
-    title: String,
-    buttons: Object,
-    dismissable: Boolean,
-    resolvePromiseWith: Function
-
-    // modalContentView: {
-    //   type: Object as () => Vue
-    // },
-    // dismissable: {
-    //   type: Boolean,
-    //   default: true
-    // }
-  },
+  props: {},
 
   mounted() {
-    // setTimeout(() => { // ensure this is called only after actually appended to DOM
-    //   displayModal(this.$refs.modal as HTMLDialogElement);
-    //   console.log(this);
-    // }, 0);
-
+    EventBus.$on("modals:show", this.$_showModal);
   },
-
 
   beforeDestroy() {
     closeModal(this.$refs.modal as HTMLDialogElement); // remove any remaining event listeners
+
+    EventBus.$off("modals:show", this.$_showModal);
   },
 
   methods: {
+    $_showModal({
+      title,
+      buttons,
+      component,
+      model,
+      content,
+      passThroughProps
+    }: any) {
+      this.buttons = buttons || {};
+      this.title = title || null;
+      this.component = component || this.component;
+      this.model = model || this.model;
+      this.content = content || this.content;
+      this.passThroughProps = passThroughProps || this.passThroughProps;
+
+      console.log(passThroughProps)
+
+      this.displayModal();
+    },
+
     // $_teardown() {
     //   teardown(this.$refs.modal as HTMLDialogElement);
     // },
@@ -97,14 +110,13 @@ export default {
     },
 
     displayModal() {
-      console.log(1/0);
       displayModal(this.$refs.modal as HTMLDialogElement);
     },
 
     confirm() {
       closeModal(this.$refs.modal as HTMLDialogElement);
       this.resolvePromiseWith({
-        value: true,
+        value: true
       });
     },
     cancel() {
@@ -113,7 +125,7 @@ export default {
       //   value: false,
       // });
     }
-  }
+  },
 };
 </script>
 

@@ -18,7 +18,8 @@ export default {
   created() {
     if (/localhost|127\.0\.0\.1/.test(window.location.host)) {
       // is dev
-      console.log('app-level vue instance: `window.vm`')
+      const c = 'color: #fff; background: #41b883;';
+      console.info('%capp-level vue instance: %cwindow.vm', `${c} padding: 0 0 0 5px;`, `${c} padding: 0 5px 0 0; font-weight: bold;`)
       window.vm = this;
     }
   }
