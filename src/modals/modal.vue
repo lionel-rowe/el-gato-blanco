@@ -3,7 +3,12 @@
     <div class="modal-box">
       <div class="modal-inner">
         <h1 class="title is-3" v-if="title">{{ title }}</h1>
-        <component :is="component" v-bind="passThroughProps || {}">
+        <component
+          :confirm="confirm"
+          :cancel="cancel"
+          :is="component"
+          v-bind="passThroughProps || {}"
+        >
           <template v-if="content">{{ content }}</template>
         </component>
         <div v-if="Object.keys(buttons).length" class="controls">
@@ -31,28 +36,10 @@ import { EventBus } from "@/events/event-bus";
 
 let { scrollX, scrollY } = window;
 
-const doNothing = e => e.preventDefault();
+const doNothing = (e: Event) => e.preventDefault();
 
-const resetScroll = e => {
+const resetScroll = () => {
   window.scrollTo(scrollX, scrollY);
-};
-
-const displayModal = (modal: HTMLDialogElement) => {
-  document.querySelector("html").style.overflowY = "hidden";
-
-  scrollX = window.scrollX;
-  scrollY = window.scrollY;
-
-  modal.showModal();
-  document.addEventListener("wheel", doNothing, { passive: false });
-  window.addEventListener("scroll", resetScroll);
-};
-
-const closeModal = (modal: HTMLDialogElement) => {
-  document.querySelector("html").style.overflowY = null;
-  modal.close();
-  document.removeEventListener("wheel", doNothing);
-  window.removeEventListener("scroll", resetScroll);
 };
 
 export default {
@@ -60,78 +47,89 @@ export default {
     buttons: {},
     title: "",
     component: "p",
-    model: null,
     content: "",
-    passThroughProps: {}
+    passThroughProps: {},
+    resolve: ({  }: any) => {}
   }),
 
   props: {},
 
   mounted() {
-    EventBus.$on("modals:show", this.$_showModal);
+    EventBus.$on("modals:show", this.$_setupModal);
   },
 
   beforeDestroy() {
-    closeModal(this.$refs.modal as HTMLDialogElement); // remove any remaining event listeners
+    this.$_closeModal();
+    // remove any remaining event listeners,
+    // styles on `html`, etc.
 
-    EventBus.$off("modals:show", this.$_showModal);
+    EventBus.$off("modals:show", this.$_setupModal);
   },
 
   methods: {
-    $_showModal({
-      title,
-      buttons,
-      component,
-      model,
-      content,
-      passThroughProps
-    }: any) {
+    $_cancelOnEsc(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        this.cancel();
+      }
+    },
+
+    $_displayModal() {
+      (document.querySelector("html") as HTMLHtmlElement).style.overflowY =
+        "hidden";
+
+      scrollX = window.scrollX;
+      scrollY = window.scrollY;
+
+      (this.$refs.modal as HTMLDialogElement).showModal();
+      document.addEventListener("wheel", doNothing, { passive: false });
+      window.addEventListener("scroll", resetScroll);
+      window.addEventListener("keydown", this.$_cancelOnEsc);
+    },
+
+    $_closeModal() {
+      (document.querySelector(
+        "html"
+      ) as HTMLHtmlElement).style.overflowY = null;
+      (this.$refs.modal as HTMLDialogElement).close();
+      document.removeEventListener("wheel", doNothing);
+      window.removeEventListener("scroll", resetScroll);
+      window.removeEventListener("keydown", this.$_cancelOnEsc);
+    },
+
+    $_setupModal(
+      { title, buttons, component, content, passThroughProps }: any,
+      resolve: (options: object) => any
+    ) {
       this.buttons = buttons || {};
       this.title = title || null;
       this.component = component || this.component;
-      this.model = model || this.model;
       this.content = content || this.content;
       this.passThroughProps = passThroughProps || this.passThroughProps;
+      this.resolve = resolve || this.resolve;
 
-      console.log(passThroughProps)
-
-      this.displayModal();
+      this.$_displayModal();
     },
 
-    // $_teardown() {
-    //   teardown(this.$refs.modal as HTMLDialogElement);
-    // },
-    // $_setup() {
-    //   setup(this.$refs.modal as HTMLDialogElement);
-    // },
-
-    beforeOpen() {
-      displayModal(this.$refs.modal as HTMLDialogElement);
-    },
-
-    displayModal() {
-      displayModal(this.$refs.modal as HTMLDialogElement);
-    },
-
-    confirm() {
-      closeModal(this.$refs.modal as HTMLDialogElement);
-      this.resolvePromiseWith({
-        value: true
+    confirm(value: any) {
+      this.$_closeModal();
+      this.resolve({
+        canceled: false,
+        value
       });
     },
     cancel() {
-      closeModal(this.$refs.modal as HTMLDialogElement);
-      // this.resolvePromiseWith({
-      //   value: false,
-      // });
+      this.$_closeModal();
+      this.resolve({
+        canceled: true
+      });
     }
-  },
+  }
 };
 </script>
 
 <style scoped lang="scss">
 $modal-height: 350px;
-$modal-width: 550px;
+$modal-width: 600px;
 
 dialog {
   &:not([open]) {
@@ -170,7 +168,7 @@ dialog {
       }
 
       @media screen and (min-height: $modal-height) {
-        height: $modal-height;
+        height: unset;
       }
     }
 

@@ -19,6 +19,36 @@ import OrderTable from "@/components/order-table.vue";
 import Modal from "@/modals/modal.vue";
 
 import store from "@/store/index";
+import OrderConfirmForm from "@/components/order-confirm-form.vue";
+import { fetchJSON } from "@/utils/fetch-json";
+
+// const getPaymentById = async (id: string): Promise<IPayment | null> => {
+//   try {
+//     return await fetchJSON(`/api/payments/${id}`);
+//   } catch(e) {
+//     console.error(e);
+
+//     return null;
+//   }
+// };
+
+const createPayment = async (order: IOrder, amount: number): Promise<{ data: any, res: any }> => {
+  const options = {
+    method: 'POST',
+    body: {
+      orderId: order.id,
+      amount,
+    }
+  };
+
+  try {
+    return await fetchJSON(`/api/payments`, options);
+  } catch(e) {
+    console.error(e);
+
+    return null;
+  }
+};
 
 export default {
   components: {
@@ -43,16 +73,28 @@ export default {
     removeAllOfProduct: (product: IProduct) => {
       store.commit("currentOrder/removeAllOfProduct", product);
     },
-    confirmPayment() {
-      EventBus.$emit("modals:show", {
-        title: "Confirm Order",
-        component: OrderTable,
-        passThroughProps: {
-          order: this.order,
-          interactive: false
-        }
-      });
-      // TODO
+
+    async confirmPayment() {
+      const { canceled, value } = await new Promise(resolve =>
+        EventBus.$emit(
+          "modals:show",
+          {
+            title: "Confirm Order",
+            component: OrderConfirmForm,
+            passThroughProps: {
+              order: this.order
+            }
+          },
+          resolve
+        )
+      );
+
+      const { order, paymentAmount } = value;
+
+      const { data: payment } = await createPayment(order, paymentAmount);
+
+      console.log(payment);
+
     },
     cancelOrder: () => {
       // TODO

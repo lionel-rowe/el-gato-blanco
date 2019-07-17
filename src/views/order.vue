@@ -14,7 +14,7 @@
           <div class="column is-4-desktop is-12-mobile is-sticky">
             <h2 class="title">Order</h2>
             <div v-if="order" class="content">
-              <OrderForm :order="order" />
+              <OrderDisplay :order="order" />
             </div>
           </div>
         </div>
@@ -26,7 +26,7 @@
 <script lang="ts">
 import store from "@/store/index";
 import ProductSortView from "@/components/product-sort-view.vue";
-import OrderForm from "@/components/order-form.vue";
+import OrderDisplay from "@/components/order-display.vue";
 import { fetchJSON } from '@/utils/fetch-json';
 
 const getAllProducts = async (): Promise<FetchResponse<IProduct[]>> => {
@@ -44,7 +44,7 @@ const getOrderById = async (id: string): Promise<FetchResponse<IOrder>> => {
 export default {
   components: {
     ProductSortView,
-    OrderForm
+    OrderDisplay
   },
   data: () => ({
     loading: false,

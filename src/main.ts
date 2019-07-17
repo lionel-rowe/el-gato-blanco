@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import Vuelidate from "vuelidate";
 
 import App from "./app.vue";
 import router from "./router";
@@ -15,6 +16,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 Vue.use(Vuex);
+Vue.use(Vuelidate);
 
 library.add(faPlus, faMinus, faTrashAlt, faCheck);
 
