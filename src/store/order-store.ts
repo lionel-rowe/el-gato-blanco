@@ -2,16 +2,6 @@ interface IOrderStoreState {
   order: IOrder | null;
 }
 
-const _syncLocal = (order: IOrder | null, clean = false): void => {
-  order.dirty = !clean;
-
-  if (order) {
-    window.localStorage.order = JSON.stringify(order);
-  } else {
-    window.localStorage.removeItem("order");
-  }
-};
-
 const _updateTotal = (order: IOrder): void => {
   order.orderTotal = order.lineItems.reduce(
     (total, lineItem) => total + lineItem.subTotal,
@@ -22,7 +12,7 @@ const _updateTotal = (order: IOrder): void => {
 export default {
   namespaced: true,
   state: {
-    order: JSON.parse(window.localStorage.order || null)
+    order: null
   },
 
   getters: {
@@ -32,16 +22,10 @@ export default {
   mutations: {
     set(state: IOrderStoreState, order: IOrder) {
       state.order = order;
-      _syncLocal(order);
     },
 
     unset(state: IOrderStoreState) {
       state.order = null;
-      _syncLocal(null);
-    },
-
-    markClean(state: IOrderStoreState) {
-      _syncLocal(order, true);
     },
 
     addItem(state: IOrderStoreState, item: IProduct): void {
@@ -63,7 +47,6 @@ export default {
       }
 
       _updateTotal(state.order);
-      _syncLocal(state.order);
     },
 
     removeItem(state: IOrderStoreState, item: IProduct): void {
@@ -81,7 +64,6 @@ export default {
       }
 
       _updateTotal(state.order);
-      _syncLocal(state.order);
     },
 
     removeAllOfProduct(state: IOrderStoreState, item: IProduct): void {
@@ -94,7 +76,6 @@ export default {
       lineItems.splice(idx, 1);
 
       _updateTotal(state.order);
-      _syncLocal(state.order);
     }
   }
 };

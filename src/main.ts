@@ -11,14 +11,25 @@ import {
   faPlus,
   faMinus,
   faTrashAlt,
-  faCheck
+  faCheck,
+  faInfoCircle,
+  faExclamationTriangle,
+  faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 Vue.use(Vuex);
 Vue.use(Vuelidate);
 
-library.add(faPlus, faMinus, faTrashAlt, faCheck);
+library.add(
+  faPlus,
+  faMinus,
+  faTrashAlt,
+  faCheck,
+  faInfoCircle,
+  faExclamationTriangle,
+  faTimes
+);
 
 Vue.component("font-awesome-icon", FontAwesomeIcon);
 

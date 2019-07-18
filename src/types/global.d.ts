@@ -12,9 +12,9 @@ interface IToast {
 
 interface IIconProps {
   glyph: string;
-  color: string;
+  class: string;
 }
 
-type Icon = "success";
+type Icon = "success" | "error" | "warning" | "info";
 
 type IconMap = { [key in Icon]: IIconProps };

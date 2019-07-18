@@ -3,17 +3,20 @@
     <TopNav />
     <router-view />
     <Modal />
+    <Toast />
   </div>
 </template>
 
 <script lang="ts">
 import TopNav from "@/components/top-nav.vue";
 import Modal from "@/modals/modal.vue";
+import Toast from "@/components/toast.vue";
 
 export default {
   components: {
     TopNav,
-    Modal
+    Modal,
+    Toast
   },
   created() {
     if (/localhost|127\.0\.0\.1/.test(window.location.host)) {

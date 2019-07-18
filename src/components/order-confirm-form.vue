@@ -5,6 +5,7 @@
     <div class="control currency-input">
       <div class="currency-symbol">£</div>
       <input
+        autofocus
         @input="validate"
         class="input"
         type="text"
@@ -30,13 +31,7 @@
 <script lang="ts">
 import { required, helpers, minValue } from "vuelidate/lib/validators";
 
-import { EventBus } from "@/events/event-bus";
 import OrderTable from "@/components/order-table.vue";
-
-import Modal from "@/modals/modal.vue";
-
-import store from "@/store/index";
-import { Validation } from "vuelidate";
 
 const DECIMAL_PATTERN = /^(?:\d*(?:\.\d{1,2})?|\.\d{1,2}|\d*\.)?$/;
 
@@ -110,7 +105,10 @@ export default {
       const paymentValidationObj = this.$v.paymentAmountPoundsAsString as any;
       const currentTarget = e.currentTarget as HTMLInputElement;
 
-      if (paymentValidationObj.fitsPattern && +paymentValidationObj.$model <= 9999999999) {
+      if (
+        paymentValidationObj.fitsPattern &&
+        +paymentValidationObj.$model <= 9999999999
+      ) {
         this.formatValidatedPaymentAmountPoundsAsString =
           paymentValidationObj.$model;
       } else {

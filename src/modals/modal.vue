@@ -1,7 +1,7 @@
 <template>
   <dialog ref="modal">
     <div class="modal-box">
-      <div class="modal-inner">
+      <div class="modal-inner" ref="modalInner">
         <h1 class="title is-3" v-if="title">{{ title }}</h1>
         <component
           :confirm="confirm"
@@ -23,7 +23,7 @@
     </div>
 
     <div @click="cancel" class="backdrop">
-      <button @click="cancel" class="close" type="reset" aria-label="Close">
+      <button @click="cancel" class="close" type="button" aria-label="Close">
         <span class="close-inner" aria-hidden="true">&times;</span>
       </button>
     </div>
@@ -43,21 +43,19 @@ const resetScroll = () => {
 };
 
 const initData = () => ({
-    buttons: {},
-    title: "",
-    component: "p",
-    content: "",
-    passThroughProps: {},
-    resolve: ({  }: any) => {}
-  });
+  buttons: {},
+  title: "",
+  component: "p",
+  content: "",
+  passThroughProps: {},
+  resolve: ({  }: any) => {}
+});
 
 export default {
   data: initData,
 
-  props: {},
-
   mounted() {
-    EventBus.$on("modals:show", this.$_setupModal);
+    EventBus.$on("modal:show", this.$_setupModal);
   },
 
   beforeDestroy() {
@@ -65,7 +63,7 @@ export default {
     // remove any remaining event listeners,
     // styles on `html`, etc.
 
-    EventBus.$off("modals:show", this.$_setupModal);
+    EventBus.$off("modal:show", this.$_setupModal);
   },
 
   methods: {
@@ -101,14 +99,30 @@ export default {
       this.resolve = resolve || this.resolve;
 
       this.$_displayModal();
+
+      setTimeout(() => {
+        const modalInner = this.$refs.modalInner as HTMLElement;
+
+        const firstFocusable =
+          modalInner.querySelector("[autofocus]") ||
+          modalInner.querySelector(
+            ["button", "[href]", "input", "select", "textarea", "[tabindex]"]
+              .map(selector => `${selector}:not([hidden]):not([tabindex="-1"])`)
+              .join(",")
+          );
+
+        if (firstFocusable) {
+          firstFocusable.focus();
+        }
+      }, 0);
     },
 
     $_teardownModal() {
       const initialData = initData();
 
       for (const prop in initialData) {
-          // Reset the prop locally.
-          this[prop] = initialData[prop];
+        // Reset the prop locally.
+        this[prop] = initialData[prop];
       }
 
       this.$_closeModal();

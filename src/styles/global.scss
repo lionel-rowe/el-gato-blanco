@@ -23,27 +23,6 @@ p {
   }
 }
 
-.toast {
-  position: fixed;
-  width: 60vw;
-  bottom: 15vh;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  border-radius: 8px;
-  padding: 5px 10px;
-  text-align: center;
-  opacity: 1;
-  transition: opacity 1s;
-  z-index: 1000;
-
-  &.invisible {
-    opacity: 0;
-    pointer-events: none;
-  }
-}
-
 .unstyled {
   font-size: inherit;
   padding: 0;

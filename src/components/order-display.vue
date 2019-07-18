@@ -20,30 +20,48 @@ import Modal from "@/modals/modal.vue";
 
 import store from "@/store/index";
 import OrderConfirmForm from "@/components/order-confirm-form.vue";
+import OrderCancelForm from "@/components/order-cancel-form.vue";
+
 import { fetchJSON } from "@/utils/fetch-json";
 
-// const getPaymentById = async (id: string): Promise<IPayment | null> => {
-//   try {
-//     return await fetchJSON(`/api/payments/${id}`);
-//   } catch(e) {
-//     console.error(e);
+const updateOrder = async (order: IOrder) => {
+  return await fetchJSON(`/api/orders/${order.id}`, {
+    method: "PUT",
+    body: order
+  });
+};
 
-//     return null;
-//   }
-// };
+const cancelOrder = async (order: IOrder): Promise<{ data: any; res: any }> => {
+  try {
+    await updateOrder(order);
 
-const createPayment = async (order: IOrder, amount: number): Promise<{ data: any, res: any }> => {
+    return await fetchJSON(`/api/orders/${order.id}`, {
+      method: "DELETE"
+    });
+  } catch (e) {
+    console.error(e);
+
+    return null;
+  }
+};
+
+const createPayment = async (
+  order: IOrder,
+  amount: number
+): Promise<{ data: any; res: any }> => {
   const options = {
-    method: 'POST',
+    method: "POST",
     body: {
       orderId: order.id,
-      amount,
+      amount
     }
   };
 
   try {
+    await updateOrder(order);
+
     return await fetchJSON(`/api/payments`, options);
-  } catch(e) {
+  } catch (e) {
     console.error(e);
 
     return null;
@@ -75,9 +93,18 @@ export default {
     },
 
     async confirmPayment() {
+      if (!this.order.lineItems.length) {
+        EventBus.$emit("toast:show", {
+          icon: "warning",
+          content: "Order is empty. Please add items first."
+        });
+
+        return;
+      }
+
       const { canceled, value } = await new Promise(resolve =>
         EventBus.$emit(
-          "modals:show",
+          "modal:show",
           {
             title: "Confirm Order",
             component: OrderConfirmForm,
@@ -89,21 +116,58 @@ export default {
         )
       );
 
-      const { order, paymentAmount } = value;
+      if (!canceled) {
+        const { order, paymentAmount } = value;
 
-      const { data: payment } = await createPayment(order, paymentAmount);
+        const { data: payment } = await createPayment(order, paymentAmount);
 
-      console.log(payment);
-
+        this.$router.push({ name: "payments", params: { id: payment.id } });
+      }
     },
-    cancelOrder: () => {
-      // TODO
+
+    async cancelOrder() {
+      const { canceled, value } = await new Promise(resolve =>
+        EventBus.$emit(
+          "modal:show",
+          {
+            title: "Cancel Order",
+            component: OrderCancelForm,
+            passThroughProps: {
+              order: this.order
+            }
+          },
+          resolve
+        )
+      );
+
+      if (!canceled) {
+        // i.e. _modal_ not canceled, i.e. order _was_ canceled
+        const { order } = value;
+
+        try {
+          const { data: canceledOrder } = await cancelOrder(order);
+
+          this.$router.push({ name: "home" });
+
+          EventBus.$emit("toast:show", {
+            icon: "success",
+            content: "Order canceled."
+          });
+        } catch(e) {
+          EventBus.$emit("toast:show", {
+            icon: "error",
+            content: "An error occurred."
+          });
+        }
+
+
+
+      }
     }
   }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .controls {
   margin: 1.5rem 0;
