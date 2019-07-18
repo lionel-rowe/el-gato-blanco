@@ -23,6 +23,7 @@ import OrderConfirmForm from "@/components/order-confirm-form.vue";
 import OrderCancelForm from "@/components/order-cancel-form.vue";
 
 import { fetchJSON } from "@/utils/fetch-json";
+import humanizeError from "@/utils/humanize-error";
 
 const updateOrder = async (order: IOrder) => {
   return await fetchJSON(`/api/orders/${order.id}`, {
@@ -32,17 +33,11 @@ const updateOrder = async (order: IOrder) => {
 };
 
 const cancelOrder = async (order: IOrder): Promise<{ data: any; res: any }> => {
-  try {
-    await updateOrder(order);
+  await updateOrder(order);
 
-    return await fetchJSON(`/api/orders/${order.id}`, {
-      method: "DELETE"
-    });
-  } catch (e) {
-    console.error(e);
-
-    return null;
-  }
+  return await fetchJSON(`/api/orders/${order.id}`, {
+    method: "DELETE"
+  });
 };
 
 const createPayment = async (
@@ -57,15 +52,9 @@ const createPayment = async (
     }
   };
 
-  try {
-    await updateOrder(order);
+  await updateOrder(order);
 
-    return await fetchJSON(`/api/payments`, options);
-  } catch (e) {
-    console.error(e);
-
-    return null;
-  }
+  return await fetchJSON(`/api/payments`, options);
 };
 
 export default {
@@ -117,11 +106,18 @@ export default {
       );
 
       if (!canceled) {
-        const { order, paymentAmount } = value;
+        try {
+          const { order, paymentAmount } = value;
 
-        const { data: payment } = await createPayment(order, paymentAmount);
+          const { data: payment } = await createPayment(order, paymentAmount);
 
-        this.$router.push({ name: "payments", params: { id: payment.id } });
+          this.$router.push({ name: "payments", params: { id: payment.id } });
+        } catch (e) {
+          EventBus.$emit("toast:show", {
+            icon: "error",
+            content: humanizeError(e)
+          });
+        }
       }
     },
 
@@ -153,15 +149,12 @@ export default {
             icon: "success",
             content: "Order canceled."
           });
-        } catch(e) {
+        } catch (e) {
           EventBus.$emit("toast:show", {
             icon: "error",
-            content: "An error occurred."
+            content: humanizeError(e)
           });
         }
-
-
-
       }
     }
   }

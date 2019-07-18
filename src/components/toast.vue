@@ -25,7 +25,7 @@ const ICONS: IconMap = {
     class: "has-text-success"
   },
   error: {
-    glyph: "times-circle",
+    glyph: "times",
     class: "has-text-danger"
   },
   warning: {

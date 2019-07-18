@@ -13,7 +13,6 @@
               >{{ 'create order' | titleCase }}</button>
             </div>
             <div v-if="loading" class="loading">Loading...</div>
-            <div v-if="error" class="error">{{ error }}</div>
 
             <div class="hero-bg"></div>
           </div>
@@ -24,7 +23,9 @@
 </template>
 
 <script lang="ts">
-import { fetchJSON } from '@/utils/fetch-json';
+import { fetchJSON } from "@/utils/fetch-json";
+import humanizeError from "@/utils/humanize-error";
+import { EventBus } from "@/events/event-bus";
 
 const createOrder = async (): Promise<FetchResponse<IOrder>> => {
   const options = {
@@ -68,7 +69,12 @@ export default {
 
         this.orderId = data.id;
       } catch (e) {
-        this.error = e.toString();
+        this.loading = false;
+
+        EventBus.$emit("toast:show", {
+          icon: "error",
+          content: humanizeError(e)
+        });
       }
     }
   }

@@ -10,8 +10,8 @@
         <OrderTable :order="order" :interactive="false" />
         <div>
           Status:
-          <template v-if="order.orderStatus === 1">Paid</template>
-          <template v-if="order.orderStatus === 2">Canceled</template>
+          <strong v-if="order.orderStatus === 1">Paid</strong>
+          <strong v-if="order.orderStatus === 2">Canceled</strong>
         </div>
       </div>
       <div v-else>
@@ -38,6 +38,7 @@ import ProductSortView from "@/components/product-sort-view.vue";
 import OrderDisplay from "@/components/order-display.vue";
 import OrderTable from "@/components/order-table.vue";
 import { fetchJSON } from "@/utils/fetch-json";
+import humanizeError from "@/utils/humanize-error";
 
 const retrieveAndWipeAutosavedOrder = () => {
   if (window.localStorage.autosavedOrder) {
@@ -66,7 +67,10 @@ const getAllCategories = async (): Promise<FetchResponse<ICategory[]>> => {
 };
 
 const getOrderById = async (id: string): Promise<FetchResponse<IOrder>> => {
-  return (retrieveAndWipeAutosavedOrder() as ISuccessFetchResponse<IOrder>) || await fetchJSON(`/api/orders/${id}`);
+  return (
+    (retrieveAndWipeAutosavedOrder() as ISuccessFetchResponse<IOrder>) ||
+    (await fetchJSON(`/api/orders/${id}`))
+  );
 };
 
 export default {
@@ -90,8 +94,6 @@ export default {
     await this.fetchData();
 
     window.addEventListener("beforeunload", this.$_autosaveOrder);
-
-    console.log(this.order);
   },
 
   async beforeDestroy() {
@@ -151,7 +153,9 @@ export default {
         this.products = products.data;
         this.categories = categories.data;
       } catch (e) {
-        this.error = e.toString();
+        this.loading = false;
+
+        this.error = humanizeError(e);
       }
     }
   }

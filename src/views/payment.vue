@@ -32,15 +32,10 @@
 
 <script lang="ts">
 import { fetchJSON } from "@/utils/fetch-json";
+import humanizeError from "@/utils/humanize-error";
 
 const getPaymentById = async (id: string): Promise<FetchResponse<IPayment>> => {
-  try {
-    return await fetchJSON(`/api/payments/${id}`);
-  } catch (e) {
-    console.error(e);
-
-    return null;
-  }
+  return await fetchJSON(`/api/payments/${id}`);
 };
 
 export default {
@@ -71,11 +66,9 @@ export default {
 
         this.payment = payment;
 
-        console.log(this.payment);
-
         this.loading = false;
       } catch (e) {
-        this.error = e.toString();
+        this.error = humanizeError(e);
       }
     }
   }
