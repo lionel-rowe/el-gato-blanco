@@ -9,6 +9,7 @@
         class="input"
         type="text"
         inputmode="decimal"
+        required
         :pattern="DECIMAL_PATTERN.source"
         v-model="$v.paymentAmountPoundsAsString.$model"
       />

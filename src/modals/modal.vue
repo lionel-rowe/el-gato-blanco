@@ -42,15 +42,17 @@ const resetScroll = () => {
   window.scrollTo(scrollX, scrollY);
 };
 
-export default {
-  data: () => ({
+const initData = () => ({
     buttons: {},
     title: "",
     component: "p",
     content: "",
     passThroughProps: {},
     resolve: ({  }: any) => {}
-  }),
+  });
+
+export default {
+  data: initData,
 
   props: {},
 
@@ -67,33 +69,24 @@ export default {
   },
 
   methods: {
+    confirm(value: any) {
+      this.resolve({
+        canceled: false,
+        value
+      });
+      this.$_teardownModal();
+    },
+    cancel() {
+      this.resolve({
+        canceled: true
+      });
+      this.$_teardownModal();
+    },
+
     $_cancelOnEsc(e: KeyboardEvent) {
       if (e.key === "Escape") {
         this.cancel();
       }
-    },
-
-    $_displayModal() {
-      (document.querySelector("html") as HTMLHtmlElement).style.overflowY =
-        "hidden";
-
-      scrollX = window.scrollX;
-      scrollY = window.scrollY;
-
-      (this.$refs.modal as HTMLDialogElement).showModal();
-      document.addEventListener("wheel", doNothing, { passive: false });
-      window.addEventListener("scroll", resetScroll);
-      window.addEventListener("keydown", this.$_cancelOnEsc);
-    },
-
-    $_closeModal() {
-      (document.querySelector(
-        "html"
-      ) as HTMLHtmlElement).style.overflowY = null;
-      (this.$refs.modal as HTMLDialogElement).close();
-      document.removeEventListener("wheel", doNothing);
-      window.removeEventListener("scroll", resetScroll);
-      window.removeEventListener("keydown", this.$_cancelOnEsc);
     },
 
     $_setupModal(
@@ -110,18 +103,39 @@ export default {
       this.$_displayModal();
     },
 
-    confirm(value: any) {
+    $_teardownModal() {
+      const initialData = initData();
+
+      for (const prop in initialData) {
+          // Reset the prop locally.
+          this[prop] = initialData[prop];
+      }
+
       this.$_closeModal();
-      this.resolve({
-        canceled: false,
-        value
-      });
     },
-    cancel() {
-      this.$_closeModal();
-      this.resolve({
-        canceled: true
-      });
+
+    $_displayModal() {
+      (document.querySelector("html") as HTMLHtmlElement).style.overflowY =
+        "hidden";
+
+      scrollX = window.scrollX;
+      scrollY = window.scrollY;
+
+      (this.$refs.modal as HTMLDialogElement).showModal();
+      document.addEventListener("wheel", doNothing, { passive: false });
+      window.addEventListener("scroll", resetScroll);
+      window.addEventListener("keydown", this.$_cancelOnEsc);
+    },
+    $_closeModal() {
+      (document.querySelector(
+        "html"
+      ) as HTMLHtmlElement).style.overflowY = null;
+      (this.$refs.modal as HTMLDialogElement).close();
+      document.removeEventListener("wheel", doNothing);
+      window.removeEventListener("scroll", resetScroll);
+      window.removeEventListener("keydown", this.$_cancelOnEsc);
+
+      // this.$refs.component
     }
   }
 };
